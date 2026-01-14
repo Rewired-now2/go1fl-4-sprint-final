@@ -42,12 +42,12 @@ func DayActionInfo(data string, weight, height float64) string {
 	steps, duration, err := parsePackage(data)
 	if err != nil {
 		log.Println("Ошибка:", err)
-		return ""
+		return fmt.Sprintf("Ошибка: %v", err)
 	}
 
 	if steps <= 0 || duration <= 0 {
 		log.Println("Ошибка: шаги или продолжительность должны быть больше 0")
-		return ""
+		return fmt.Sprintf("Ошибка: шаги или продолжительность должны быть больше 0")
 	}
 
 	distanceMeters := float64(steps) * stepLength
@@ -55,7 +55,7 @@ func DayActionInfo(data string, weight, height float64) string {
 	calories, err := spentcalories.WalkingSpentCalories(steps, weight, height, duration)
 	if err != nil {
 		log.Println("Ошибка при вычислении калорий:", err)
-		return ""
+		return fmt.Sprintf("Ошибка при вычислении калорий: %v", err)
 	}
 
 	result := fmt.Sprintf("Количество шагов: %d.\nДистанция составила %.2f км.\nВы сожгли %.2f ккал.\n", steps, distanceKm, calories)

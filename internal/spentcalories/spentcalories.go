@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	mInKm                      = 1000
-	minInH                     = 60
-	stepLengthCoefficient      = 0.45
-	walkingCaloriesCoefficient = 0.5
+	lenStep                    = 0.65 // Средняя длина шага
+	mInKm                      = 1000 // Количество метров в километре
+	minInH                     = 60   // Количество минут в часе
+	stepLengthCoefficient      = 0.45 // Коэффициент для расчета длины шага
+	walkingCaloriesCoefficient = 0.5  // Коэффициент для расчета калорий при ходьбе
 )
 
 func parseTraining(data string) (int, string, time.Duration, error) {
@@ -26,7 +27,6 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	if err != nil || steps <= 0 {
 		return 0, "", 0, errors.New("неверное количество шагов")
 	}
-
 	activity := strings.TrimSpace(parts[1])
 
 	durationStr := strings.TrimSpace(parts[2])
@@ -34,7 +34,8 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	if err != nil {
 		return 0, "", 0, errors.New("неверный формат продолжительности")
 	}
-	return steps, activity, duration, nil
+
+	return steps, activity, duration, err
 }
 
 func distance(steps int, height float64) float64 {
@@ -78,20 +79,20 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var dist float64
+
 	var speed float64
 	var calories float64
 
 	switch activity {
 	case "Ходьба":
-		dist = distance(steps, height)
+
 		speed = meanSpeed(steps, height, duration)
 		calories, err = WalkingSpentCalories(steps, weight, height, duration)
 		if err != nil {
 			return "", err
 		}
 	case "Бег":
-		dist = distance(steps, height)
+
 		speed = meanSpeed(steps, height, duration)
 		calories, err = RunningSpentCalories(steps, weight, height, duration)
 		if err != nil {
@@ -102,5 +103,5 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 	}
 
 	return fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n",
-		activity, duration.Hours(), dist, speed, calories), nil
+		activity, duration.Hours(), distance(steps, height), speed, calories), nil
 }
